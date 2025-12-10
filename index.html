@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Portfolio Manager</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            color: #93c5fd;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .card-label {
+            color: #93c5fd;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .green { color: #4ade80; }
+        .red { color: #f87171; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #15803d;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .input, .select {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .input::placeholder {
+            color: #93c5fd;
+        }
+        .input:focus, .select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        th {
+            color: #93c5fd;
+            font-weight: 600;
+            text-align: left;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        td {
+            padding: 1rem 1rem 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stock-name {
+            font-weight: 600;
+        }
+        .stock-symbol {
+            color: #93c5fd;
+            font-size: 0.875rem;
+        }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 2rem; }
+        .mt-2 { margin-top: 1rem; }
+        .text-center { text-align: center; }
+        .font-semibold { font-weight: 600; }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            .card-value {
+                font-size: 1.5rem;
+            }
+            .table-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const InvestmentPortfolioApp = () => {
+            const [investments, setInvestments] = useState([
+                { id: 1, name: 'Apple Inc.', symbol: 'AAPL', type: 'Stock', shares: 50, buyPrice: 150, currentPrice: 180 },
+                { id: 2, name: 'Microsoft Corp.', symbol: 'MSFT', type: 'Stock', shares: 30, buyPrice: 340, currentPrice: 380 },
+                { id: 3, name: 'Vanguard S&P 500 ETF', symbol: 'VOO', type: 'ETF', shares: 25, buyPrice: 400, currentPrice: 440 },
+                { id: 4, name: 'US Treasury Bond', symbol: 'TLT', type: 'Bond', shares: 100, buyPrice: 95, currentPrice: 98 },
+                { id: 5, name: 'Bitcoin', symbol: 'BTC', type: 'Crypto', shares: 0.5, buyPrice: 40000, currentPrice: 45000 },
+            ]);
+
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [editingId, setEditingId] = useState(null);
+            const [editValues, setEditValues] = useState({});
+            const [newInvestment, setNewInvestment] = useState({
+                name: '', symbol: '', type: 'Stock', shares: '', buyPrice: '', currentPrice: ''
+            });
+
+            const totalInvested = investments.reduce((sum, inv) => sum + (inv.shares * inv.buyPrice), 0);
+            const currentValue = investments.reduce((sum, inv) => sum + (inv.shares * inv.currentPrice), 0);
+            const totalGainLoss = currentValue - totalInvested;
+            const totalGainLossPercent = ((totalGainLoss / totalInvested) * 100);
+
+            const handleAddInvestment = () => {
+                if (!newInvestment.name || !newInvestment.symbol || !newInvestment.shares || !newInvestment.buyPrice || !newInvestment.currentPrice) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                const investment = {
+                    id: Date.now(),
+                    name: newInvestment.name,
+                    symbol: newInvestment.symbol.toUpperCase(),
+                    type: newInvestment.type,
+                    shares: parseFloat(newInvestment.shares),
+                    buyPrice: parseFloat(newInvestment.buyPrice),
+                    currentPrice: parseFloat(newInvestment.currentPrice)
+                };
+
+                setInvestments([...investments, investment]);
+                setNewInvestment({ name: '', symbol: '', type: 'Stock', shares: '', buyPrice: '', currentPrice: '' });
+                setShowAddForm(false);
+            };
+
+            const handleDelete = (id) => {
+                if (window.confirm('Delete this investment?')) {
+                    setInvestments(investments.filter(inv => inv.id !== id));
+                }
+            };
+
+            const startEdit = (inv) => {
+                setEditingId(inv.id);
+                setEditValues({
+                    shares: inv.shares,
+                    currentPrice: inv.currentPrice
+                });
+            };
+
+            const saveEdit = (id) => {
+                setInvestments(investments.map(inv => 
+                    inv.id === id ? { ...inv, shares: parseFloat(editValues.shares), currentPrice: parseFloat(editValues.currentPrice) } : inv
+                ));
+                setEditingId(null);
+            };
+
+            const cancelEdit = () => {
+                setEditingId(null);
+                setEditValues({});
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>Investment Portfolio Manager</h1>
+                        <p>Track and manage your investments in one place</p>
+                    </div>
+
+                    {/* Summary Cards */}
+                    <div className="card-grid">
+                        <div className="card">
+                            <div className="card-label">Total Invested</div>
+                            <div className="card-value">${totalInvested.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-label">Current Value</div>
+                            <div className="card-value">${currentValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-label">Total Gain/Loss</div>
+                            <div className={`card-value ${totalGainLoss >= 0 ? 'green' : 'red'}`}>
+                                ${Math.abs(totalGainLoss).toLocaleString(undefined, {maximumFractionDigits: 0})}
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-label">Return %</div>
+                            <div className={`card-value ${totalGainLossPercent >= 0 ? 'green' : 'red'}`}>
+                                {totalGainLossPercent.toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Add Investment Button */}
+                    <div className="mb-2">
+                        <button
+                            onClick={() => setShowAddForm(!showAddForm)}
+                            className="btn btn-primary"
+                        >
+                            {showAddForm ? '✕ Cancel' : '+ Add New Investment'}
+                        </button>
+                    </div>
+
+                    {/* Add Investment Form */}
+                    {showAddForm && (
+                        <div className="card mb-4">
+                            <h3 className="mb-2 font-semibold" style={{fontSize: '1.25rem'}}>New Investment</h3>
+                            <div className="form-grid">
+                                <input
+                                    type="text"
+                                    placeholder="Name (e.g., Apple Inc.)"
+                                    value={newInvestment.name}
+                                    onChange={(e) => setNewInvestment({...newInvestment, name: e.target.value})}
+                                    className="input"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Symbol (e.g., AAPL)"
+                                    value={newInvestment.symbol}
+                                    onChange={(e) => setNewInvestment({...newInvestment, symbol: e.target.value})}
+                                    className="input"
+                                />
+                                <select
+                                    value={newInvestment.type}
+                                    onChange={(e) => setNewInvestment({...newInvestment, type: e.target.value})}
+                                    className="select"
+                                >
+                                    <option value="Stock">Stock</option>
+                                    <option value="ETF">ETF</option>
+                                    <option value="Bond">Bond</option>
+                                    <option value="Crypto">Crypto</option>
+                                    <option value="Mutual Fund">Mutual Fund</option>
+                                </select>
+                                <input
+                                    type="number"
+                                    placeholder="Shares"
+                                    step="0.01"
+                                    value={newInvestment.shares}
+                                    onChange={(e) => setNewInvestment({...newInvestment, shares: e.target.value})}
+                                    className="input"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Buy Price"
+                                    step="0.01"
+                                    value={newInvestment.buyPrice}
+                                    onChange={(e) => setNewInvestment({...newInvestment, buyPrice: e.target.value})}
+                                    className="input"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Current Price"
+                                    step="0.01"
+                                    value={newInvestment.currentPrice}
+                                    onChange={(e) => setNewInvestment({...newInvestment, currentPrice: e.target.value})}
+                                    className="input"
+                                />
+                            </div>
+                            <button
+                                onClick={handleAddInvestment}
+                                className="btn btn-success"
+                            >
+                                Add Investment
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Investments Table */}
+                    <div className="table-container">
+                        <h3 className="mb-2 font-semibold" style={{fontSize: '1.25rem'}}>Investment Holdings</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Shares</th>
+                                    <th>Buy Price</th>
+                                    <th>Current</th>
+                                    <th>Value</th>
+                                    <th>Gain/Loss</th>
+                                    <th>Return %</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {investments.map(inv => {
+                                    const totalInv = inv.shares * inv.buyPrice;
+                                    const currentVal = inv.shares * inv.currentPrice;
+                                    const gainLoss = currentVal - totalInv;
+                                    const returnPct = ((gainLoss / totalInv) * 100);
+                                    const isEditing = editingId === inv.id;
+
+                                    return (
+                                        <tr key={inv.id}>
+                                            <td>
+                                                <div className="stock-name">{inv.name}</div>
+                                                <div className="stock-symbol">{inv.symbol}</div>
+                                            </td>
+                                            <td>{inv.type}</td>
+                                            <td>
+                                                {isEditing ? (
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={editValues.shares}
+                                                        onChange={(e) => setEditValues({...editValues, shares: e.target.value})}
+                                                        className="input"
+                                                        style={{width: '80px', padding: '0.25rem 0.5rem'}}
+                                                    />
+                                                ) : inv.shares}
+                                            </td>
+                                            <td>${inv.buyPrice.toFixed(2)}</td>
+                                            <td>
+                                                {isEditing ? (
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={editValues.currentPrice}
+                                                        onChange={(e) => setEditValues({...editValues, currentPrice: e.target.value})}
+                                                        className="input"
+                                                        style={{width: '100px', padding: '0.25rem 0.5rem'}}
+                                                    />
+                                                ) : `$${inv.currentPrice.toFixed(2)}`}
+                                            </td>
+                                            <td className="font-semibold">${currentVal.toFixed(2)}</td>
+                                            <td className={`font-semibold ${gainLoss >= 0 ? 'green' : 'red'}`}>
+                                                {gainLoss >= 0 ? '+' : ''}{gainLoss.toFixed(2)}
+                                            </td>
+                                            <td className={`font-semibold ${returnPct >= 0 ? 'green' : 'red'}`}>
+                                                {returnPct >= 0 ? '+' : ''}{returnPct.toFixed(2)}%
+                                            </td>
+                                            <td>
+                                                {isEditing ? (
+                                                    <>
+                                                        <button onClick={() => saveEdit(inv.id)} className="btn-success" style={{marginRight: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.875rem'}}>
+                                                            Save
+                                                        </button>
+                                                        <button onClick={cancelEdit} className="btn-danger">
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button onClick={() => startEdit(inv)} className="btn-primary" style={{marginRight: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.875rem'}}>
+                                                            Edit
+                                                        </button>
+                                                        <button onClick={() => handleDelete(inv.id)} className="btn-danger">
+                                                            Delete
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="text-center mt-2" style={{color: '#93c5fd', fontSize: '0.875rem'}}>
+                        <p>Investment Portfolio Manager - Track your financial growth</p>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<InvestmentPortfolioApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

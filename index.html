@@ -172,11 +172,7 @@
 
         const InvestmentPortfolioApp = () => {
             const [investments, setInvestments] = useState([
-                { id: 1, name: 'Apple Inc.', symbol: 'AAPL', type: 'Stock', shares: 50, buyPrice: 150, currentPrice: 180 },
-                { id: 2, name: 'Microsoft Corp.', symbol: 'MSFT', type: 'Stock', shares: 30, buyPrice: 340, currentPrice: 380 },
-                { id: 3, name: 'Vanguard S&P 500 ETF', symbol: 'VOO', type: 'ETF', shares: 25, buyPrice: 400, currentPrice: 440 },
-                { id: 4, name: 'US Treasury Bond', symbol: 'TLT', type: 'Bond', shares: 100, buyPrice: 95, currentPrice: 98 },
-                { id: 5, name: 'Bitcoin', symbol: 'BTC', type: 'Crypto', shares: 0.5, buyPrice: 40000, currentPrice: 45000 },
+                
             ]);
 
             const [showAddForm, setShowAddForm] = useState(false);
@@ -448,4 +444,5 @@
         ReactDOM.render(<InvestmentPortfolioApp />, document.getElementById('root'));
     </script>
 </body>
+
 </html>
